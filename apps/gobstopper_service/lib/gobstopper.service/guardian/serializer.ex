@@ -1,4 +1,4 @@
-defmodule Gobstopper.Service.GuardianSerializer do
+defmodule Gobstopper.Service.Guardian.Serializer do
     @behaviour Guardian.Serializer
 
     def for_token(%Gobstopper.Service.Auth.Identity.Model{ identity: id }), do: { :ok, "Identity:#{id}" }

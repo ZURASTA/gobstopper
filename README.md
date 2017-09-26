@@ -25,15 +25,26 @@ Support for credentials can be added by implementing the behaviours in `Gobstopp
 
 Support for email based credentials is provided by the `Gobstopper.Service.Auth.Identity.Credential.Email` implementation.
 
-This credential depends on the [`Sherbet`](https://github.com/ScrimpyCat/sherbet) contact service to manage the emails.
+This credential depends on the [`Sherbet`](https://github.com/ZURASTA/sherbet) contact service to manage the emails.
 
-The credential works by allowing an identity to setup a login credential consisting of an email and password. The email used is the primary email associated with the identity in the [`Sherbet`](https://github.com/ScrimpyCat/sherbet) service.
+The credential works by allowing an identity to setup a login credential consisting of an email and password. The email used is the primary email associated with the identity in the [`Sherbet`](https://github.com/ZURASTA/sherbet) service.
 
 
-Todo
-----
+Configuration
+-------------
 
-- [ ] Google credential.
-- [ ] Facebook credential.
-- [ ] Account recovery.
-- [ ] PubSub.
+The service may be configured with the following options:
+
+### Setup Mode
+
+The service has two setup modes: `:auto` and `:manual`. When the service is started in `:auto`, it will automatically handle creating and migrating the database. When the service is started in `:manual`, the state of the database is left up to the user to manually setup.
+
+By default the service runs in `:auto` mode. To change this behaviour, pass in the `{ :setup_mode, mode }` when starting the application.
+
+### Database
+
+The database options can be configured by providing the config for the key `Gobstopper.Service.Repo`.
+
+For details on how to configure an [Ecto repo](https://hexdocs.pm/ecto/Ecto.Repo.html).
+
+__Note:__ Relies on PostgreSQL for auto-generating UUIDs (uuid-ossp extension).
