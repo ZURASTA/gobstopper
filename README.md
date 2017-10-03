@@ -1,5 +1,7 @@
-[![Stories in Ready](https://badge.waffle.io/ZURASTA/gobstopper.png?label=ready&title=Ready)](https://waffle.io/ZURASTA/gobstopper?utm_source=badge) [![CircleCI](https://circleci.com/gh/ZURASTA/gobstopper.svg?style=svg)](https://circleci.com/gh/ZURASTA/gobstopper)
 # Gobstopper (Identity and Credential Management)
+
+[![Stories in Ready](https://badge.waffle.io/ZURASTA/gobstopper.png?label=ready&title=Ready)](https://waffle.io/ZURASTA/gobstopper?utm_source=badge)
+[![CircleCI](https://circleci.com/gh/ZURASTA/gobstopper.svg?style=svg)](https://circleci.com/gh/ZURASTA/gobstopper)
 
 Manages the identities and credentials used to authorise access to those identities. An identity is a unique ID representing an entity, that can then be used to associate other information with. It is connected to any number of credentials, which are used to prove the entity is who they say they are.
 
