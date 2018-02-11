@@ -16,7 +16,7 @@ An API (`Gobstopper.API`) is provided to allow for convenient interaction with t
 Credentials
 -----------
 
-A credential is a means of authentication, to prove an entity is who they say they are. There can be many types of credentials that an identity can be associated with, though an identity may only be associated with one credential for each type. Credentials associated with an identity can be managed by that identity,
+A credential is a means of authentication, to prove an entity is who they say they are. There can be many types of credentials that an identity can be associated with, though an identity may only be associated with one credential for each type. Credentials associated with an identity can be managed by that identity.
 
 Once an authentication attempt is made, if successful a token is created representing a valid authorisation to access that identity. This token can then be verified to retrieve the identity it represents (in order to expose to other services) or revoked to cause the token to no longer be valid.
 
