@@ -12,5 +12,10 @@ import_config "../apps/*/config/config.exs"
 if Mix.env == :dev do
     import_config "simple_markdown_rules.exs"
 
-    config :ex_doc, :markdown_processor, SimpleMarkdown
+    config :ex_doc_simple_markdown, [
+        pretty_codeblocks: false,
+        rules: &SimpleMarkdownExtensionBlueprint.add_rule/1
+    ]
+
+    config :ex_doc, :markdown_processor, ExDocSimpleMarkdown
 end
