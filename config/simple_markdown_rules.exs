@@ -65,7 +65,63 @@ config :simple_markdown,
         emphasis: %{ match: ~r/\A\*(.+?)\*/, option: :regular, exclude: { :emphasis, :regular } },
         emphasis: %{ match: ~r/\A_(.+?)_/, option: :regular, exclude: { :emphasis, :regular } },
         blockquote: %{ match: ~r/\A>.*(\n([[:blank:]]|>).*)*/, capture: 0, format: &String.replace(&1, ~r/^> ?/m, ""), exclude: nil }, #(Regex.scan(~r/(?<=> ).*/, &1) |> Enum.join("\n")) },
-        link: %{ match: ~r/\A\[(.*?)\]\((.*?)\)/, capture: 1, option: fn input, [_, _, { index, length }] -> binary_part(input, index, length) end },
-        image: %{ match: ~r/\A!\[(.*?)\]\((.*?)\)/, capture: 1, option: fn input, [_, _, { index, length }] -> binary_part(input, index, length) end },
+        link: %{
+            match: fn
+                "[" <> input ->
+                    if Regex.match?(~r/\A.*?\]\(.*\)/, input) do
+                        find_end = fn
+                            "[" <> string, _, n, fun -> fun.(string, :inner_mid, n + 1, fun)
+                            "](" <> string, :inner_mid, n, fun -> fun.(string, :inner_end, n + 2, fun)
+                            ")" <> string, :inner_end, n, fun -> fun.(string, :mid, n + 1, fun)
+                            "](" <> string, :mid, n, fun -> fun.(string, :end, n + 2, fun)
+                            ")" <> string, :end, n, _ -> n + 1
+                            <<c :: utf8, string :: binary>>, token, n, fun -> fun.(string, token, n + byte_size(to_string([c])), fun)
+                            "", _, n, _ -> n
+                        end
+
+                        [{ 0, find_end.(input, :mid, 1, find_end) }]
+                    else
+                        nil
+                    end
+                _ -> nil
+            end,
+            format: fn input ->
+                [_, title, _] = Regex.run(~r/\A\[(.*?)\]\(([^\)\n]*?)\)$/, input)
+                title
+            end,
+            option: fn input, [{ index, length}|_] ->
+                [_, _, link] = Regex.run(~r/\A\[(.*?)\]\(([^\)\n]*?)\)$/, binary_part(input, index, length))
+                link
+            end
+        },
+        image: %{
+            match: fn
+                "![" <> input ->
+                    if Regex.match?(~r/\A.*?\]\(.*\)/, input) do
+                        find_end = fn
+                            "[" <> string, _, n, fun -> fun.(string, :inner_mid, n + 1, fun)
+                            "](" <> string, :inner_mid, n, fun -> fun.(string, :inner_end, n + 2, fun)
+                            ")" <> string, :inner_end, n, fun -> fun.(string, :mid, n + 1, fun)
+                            "](" <> string, :mid, n, fun -> fun.(string, :end, n + 2, fun)
+                            ")" <> string, :end, n, _ -> n + 1
+                            <<c :: utf8, string :: binary>>, token, n, fun -> fun.(string, token, n + byte_size(to_string([c])), fun)
+                            "", _, n, _ -> n
+                        end
+
+                        [{ 0, find_end.(input, :mid, 2, find_end) }]
+                    else
+                        nil
+                    end
+                _ -> nil
+            end,
+            format: fn input ->
+                [_, title, _] = Regex.run(~r/\A!\[(.*?)\]\(([^\)\n]*?)\)$/, input)
+                title
+            end,
+            option: fn input, [{ index, length}|_] ->
+                [_, _, link] = Regex.run(~r/\A!\[(.*?)\]\(([^\)\n]*?)\)$/, binary_part(input, index, length))
+                link
+            end
+        },
         code: %{ match: ~r/\A`([^`].*?)`/, rules: [] }
     ]
