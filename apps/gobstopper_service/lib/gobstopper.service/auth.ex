@@ -51,9 +51,14 @@ defmodule Gobstopper.Service.Auth do
         Task.start(fn -> GenServer.reply(from, Identity.refresh(token)) end)
         { :noreply, state }
     end
+    def handle_call({ :swarm, :begin_handoff }, _from, state), do: { :reply, :restart, state }
 
     def handle_cast({ :logout, token }, state) do
         Task.start(fn -> Identity.logout(token) end)
         { :noreply, state }
     end
+    def handle_cast({ :swarm, :end_handoff }, state), do: { :noreply, state }
+    def handle_cast({ :swarm, :resolve_conflict, _state }, state), do: { :noreply, state }
+
+    def handle_info({ :swarm, :die }, state), do: { :stop, :shutdown, state }
 end
