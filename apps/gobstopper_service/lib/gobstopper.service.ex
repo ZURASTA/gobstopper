@@ -1,6 +1,16 @@
 defmodule Gobstopper.Service do
     @moduledoc """
       The service application for identities and credentials.
+
+      ## Configurable Options
+
+      * `:server` - The name the server should be registered as. This takes a
+      function that accepts a module and returns a valid named server.
+
+      An example configuration:
+
+        config :gobstopper_service,
+            server: &(&1)
     """
 
     use Application
