@@ -12,7 +12,7 @@ defmodule Gobstopper.Service.Auth do
     end
 
     def start_link() do
-        GenServer.start_link(__MODULE__, [], name: __MODULE__)
+        GenServer.start_link(__MODULE__, [], name: Application.get_env(:gobstopper_service, :server, &(&1)).(__MODULE__))
     end
 
     def handle_call({ :create, { type, credential } }, from, state) do
