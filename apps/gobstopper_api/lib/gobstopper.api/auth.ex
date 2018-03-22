@@ -47,4 +47,16 @@ defmodule Gobstopper.API.Auth do
         options = Gobstopper.API.defaults(options)
         GenServer.call(options[:server].(@service), { :refresh, token }, options[:timeout])
     end
+
+    @doc """
+      Get the state of all credentials an identity could be associated with.
+
+      Returns all the credentials presentable state if successful. Otherwise returns
+      an error.
+    """
+    @spec all_credentials(token, keyword(any)) :: { :ok, [{ atom, { :unverified | :verified, String.t } | { :none, nil } }] } | { :error, String.t }
+    def all_credentials(token, options \\ []) do
+        options = Gobstopper.API.defaults(options)
+        GenServer.call(options[:server].(@service), { :all_credentials, token }, options[:timeout])
+    end
 end
