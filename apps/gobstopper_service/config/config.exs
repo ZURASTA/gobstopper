@@ -3,7 +3,7 @@ use Mix.Config
 config :gobstopper_service,
     ecto_repos: [Gobstopper.Service.Repo]
 
-config :guardian_db, GuardianDb,
+config :guardian, Guardian.DB,
     repo: Gobstopper.Service.Repo,
     schema_name: "tokens",
     sweep_interval: 120

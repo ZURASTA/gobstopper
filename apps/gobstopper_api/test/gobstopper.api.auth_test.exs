@@ -34,7 +34,7 @@ defmodule Gobstopper.API.AuthTest do
 
         test "retrieving all credentials associated with an identity with no credentials" do
             identity = Gobstopper.Service.Repo.insert!(Gobstopper.Service.Auth.Identity.Model.changeset(%Gobstopper.Service.Auth.Identity.Model{}))
-            { :ok, token, _ } = Guardian.encode_and_sign(identity)
+            { :ok, token, _ } = Gobstopper.Service.Token.encode_and_sign(identity)
 
             assert { :ok, credentials } = Auth.all_credentials(token)
             assert Enum.all?(credentials, fn

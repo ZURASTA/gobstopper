@@ -7,6 +7,7 @@ defmodule Gobstopper.Service.Auth.Identity do
 
     require Logger
     alias Gobstopper.Service.Auth.Identity
+    alias Gobstopper.Service.Token
 
     defp unique_identity({ :error, %{ errors: [identity: _] } }), do: unique_identity(Gobstopper.Service.Repo.insert(Identity.Model.changeset(%Identity.Model{})))
     defp unique_identity(identity), do: identity
@@ -21,7 +22,7 @@ defmodule Gobstopper.Service.Auth.Identity do
     def create(type, credential) do
         with { :identity, { :ok, identity } } <- { :identity, unique_identity(Gobstopper.Service.Repo.insert(Identity.Model.changeset(%Identity.Model{}))) },
              { :create_credential, :ok } <- { :create_credential, Identity.Credential.create(type, identity, credential) },
-             { :jwt, { :ok, jwt, _ } } <- { :jwt, Guardian.encode_and_sign(identity) } do
+             { :jwt, { :ok, jwt, _ } } <- { :jwt, Token.encode_and_sign(identity) } do
                 { :ok, jwt }
         else
             { :identity, { :error, changeset } } ->
@@ -82,7 +83,7 @@ defmodule Gobstopper.Service.Auth.Identity do
     @spec login(atom, term) :: { :ok, String.t } | { :error, String.t }
     def login(type, credential) do
         with { :identity, { :ok, identity } } <- { :identity, Identity.Credential.authenticate(type, credential) },
-             { :jwt, { :ok, jwt, _ } } <- { :jwt, Guardian.encode_and_sign(identity) } do
+             { :jwt, { :ok, jwt, _ } } <- { :jwt, Token.encode_and_sign(identity) } do
                 { :ok, jwt }
         else
             { :identity, { :error, reason } } -> { :error, reason }
@@ -97,8 +98,10 @@ defmodule Gobstopper.Service.Auth.Identity do
     """
     @spec logout(String.t) :: :ok | { :error, String.t }
     def logout(token) do
-        case Guardian.revoke!(token) do
-            :ok -> :ok
+        case Token.remove(token) do
+            { :ok, _ } -> :ok
+            { :error, :invalid_token } -> :ok
+            { :error, :not_found } -> :ok
             _ -> { :error, "Could not logout of session" }
         end
     end
@@ -110,18 +113,16 @@ defmodule Gobstopper.Service.Auth.Identity do
     """
     @spec refresh(String.t) :: { :ok, String.t } | { :error, String.t }
     def refresh(token) do
-        case Guardian.refresh!(token) do
-            { :ok, token, _ } -> { :ok, token }
+        case Token.refresh(token) do
+            { :ok, _, { token, _ } } -> { :ok, token }
             _ -> { :error, "Error refreshing token" }
         end
     end
 
     @spec verify_identity(String.t) :: Identity.Model.t | nil
     defp verify_identity(token) do
-        with { :ok, %{ "sub" => sub } } <- Guardian.decode_and_verify(token),
-             { :ok, identity } <- Guardian.serializer.from_token(sub) do
-                identity
-        else
+        case Token.resource_from_token(token) do
+            { :ok, identity, _ } -> identity
             _ -> nil
         end
     end

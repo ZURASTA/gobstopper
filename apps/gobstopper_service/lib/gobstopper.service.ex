@@ -37,7 +37,7 @@ defmodule Gobstopper.Service do
 
         children = [
             Gobstopper.Service.Repo,
-            GuardianDb.ExpiredSweeper,
+            Guardian.DB.Token.SweeperServer,
             Gobstopper.Service.Auth
         ]
 

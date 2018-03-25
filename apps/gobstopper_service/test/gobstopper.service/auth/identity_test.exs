@@ -2,6 +2,7 @@ defmodule Gobstopper.Service.Auth.IdentityTest do
     use Gobstopper.Service.Case
 
     alias Gobstopper.Service.Auth.Identity
+    alias Gobstopper.Service.Token
 
     describe "create/2" do
         test "creating a new account with a non-existent credential type" do
@@ -27,7 +28,7 @@ defmodule Gobstopper.Service.Auth.IdentityTest do
 
         test "creating an email credential when none are associated" do
             identity = Gobstopper.Service.Repo.insert!(Identity.Model.changeset(%Identity.Model{}))
-            { :ok, token, _ } = Guardian.encode_and_sign(identity)
+            { :ok, token, _ } = Token.encode_and_sign(identity)
 
             assert :ok == Identity.create(:email, { "foo@foo", "secret" }, token)
         end
@@ -40,7 +41,7 @@ defmodule Gobstopper.Service.Auth.IdentityTest do
 
         test "update an identity's non-existent email credential" do
             identity = Gobstopper.Service.Repo.insert!(Identity.Model.changeset(%Identity.Model{}))
-            { :ok, token, _ } = Guardian.encode_and_sign(identity)
+            { :ok, token, _ } = Token.encode_and_sign(identity)
 
             assert { :error, "No email credential exists" } == Identity.update(:email, { "foo@foo", "secret" }, token)
         end
@@ -58,7 +59,7 @@ defmodule Gobstopper.Service.Auth.IdentityTest do
 
         test "remove an identity's non-existent email credential" do
             identity = Gobstopper.Service.Repo.insert!(Identity.Model.changeset(%Identity.Model{}))
-            { :ok, token, _ } = Guardian.encode_and_sign(identity)
+            { :ok, token, _ } = Token.encode_and_sign(identity)
 
             assert { :error, "No email credential exists" } == Identity.remove(:email, token)
         end
@@ -87,7 +88,7 @@ defmodule Gobstopper.Service.Auth.IdentityTest do
 
         test "logout of an identity" do
             identity = Gobstopper.Service.Repo.insert!(Identity.Model.changeset(%Identity.Model{}))
-            { :ok, token, _ } = Guardian.encode_and_sign(identity)
+            { :ok, token, _ } = Token.encode_and_sign(identity)
 
             assert { :ok, false } == Identity.credential?(:email, token)
             assert :ok == Identity.logout(token)
@@ -102,7 +103,7 @@ defmodule Gobstopper.Service.Auth.IdentityTest do
 
         test "refresh an identity's token" do
             identity = Gobstopper.Service.Repo.insert!(Identity.Model.changeset(%Identity.Model{}))
-            { :ok, token, _ } = Guardian.encode_and_sign(identity)
+            { :ok, token, _ } = Token.encode_and_sign(identity)
             assert identity.identity == Identity.verify(token)
 
             assert { :ok, token2 } = Identity.refresh(token)
@@ -118,7 +119,7 @@ defmodule Gobstopper.Service.Auth.IdentityTest do
 
         test "verify of an identity" do
             identity = Gobstopper.Service.Repo.insert!(Identity.Model.changeset(%Identity.Model{}))
-            { :ok, token, _ } = Guardian.encode_and_sign(identity)
+            { :ok, token, _ } = Token.encode_and_sign(identity)
 
             assert identity.identity == Identity.verify(token)
             Identity.logout(token)
@@ -133,7 +134,7 @@ defmodule Gobstopper.Service.Auth.IdentityTest do
 
         test "if an identity's non-existent email credential exists" do
             identity = Gobstopper.Service.Repo.insert!(Identity.Model.changeset(%Identity.Model{}))
-            { :ok, token, _ } = Guardian.encode_and_sign(identity)
+            { :ok, token, _ } = Token.encode_and_sign(identity)
 
             assert { :ok, false } == Identity.credential?(:email, token)
         end
@@ -151,7 +152,7 @@ defmodule Gobstopper.Service.Auth.IdentityTest do
 
         test "retrieving all credentials associated with an identity with no credentials" do
             identity = Gobstopper.Service.Repo.insert!(Identity.Model.changeset(%Identity.Model{}))
-            { :ok, token, _ } = Guardian.encode_and_sign(identity)
+            { :ok, token, _ } = Token.encode_and_sign(identity)
 
             assert { :ok, credentials } = Identity.all_credentials(token)
             assert Enum.all?(credentials, fn
