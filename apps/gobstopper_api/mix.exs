@@ -42,12 +42,11 @@ defmodule Gobstopper.API.Mixfile do
     #   {:my_app, in_umbrella: true}
     #
     # Type "mix help deps" for more examples and options
-    defp deps(false) do
+    defp deps(false), do: deps(true) ++ [{ :gobstopper_service, path: "../gobstopper_service", only: :test }]
+    defp deps(true) do
         [
-            { :gobstopper_service, path: "../gobstopper_service", only: :test },
             { :sherbet_service, github: "ZURASTA/sherbet", sparse: "apps/sherbet_service", only: :test },
             { :cake_service, github: "ZURASTA/cake", sparse: "apps/cake_service", only: :test }
         ]
     end
-    defp deps(true), do: []
 end
